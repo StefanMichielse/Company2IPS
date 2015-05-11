@@ -16,7 +16,7 @@ This is a Python project to aid quick scanning of companies
 
 ## Usage
 You can run the script by doing:
-<script>python Company2IPS.py '[Company name]'</script>
+<code>python Company2IPS.py '[Company name]'</code>
 
 In the script itself change some of the variables for your setup, such as:
 * Connection string for the MongoDB
