@@ -6,6 +6,8 @@ import thread
 from os import listdir
 from time import sleep
 import time
+from netaddr import *
+import requests
 
 maxThreads = 24 #Change this for the max threads to the DB
 currentThreads = 0
@@ -59,31 +61,13 @@ def create_array_from_anchor(anchorText):
         tempArray = []
         #If inetnum get the start and end ip
         firstIP = anchorText.split(" ")[1]
-        tempArray.append(firstIP)
         lastIP = anchorText.split(" ")[3]
-        #create a base ip
-        baseIP = firstIP.split(".")[0] + "." + firstIP.split(".")[1] + "." + firstIP.split(".")[2] + "."
-        #split the first and last ips so we only have the last bit
-        lastSection_firstIP = firstIP.split(".")[3]
-        lastSection_lastIP = lastIP.split(".")[3]
-        #calculate the difference
-        difference = int(lastSection_lastIP) - int(lastSection_firstIP)
 
-        #print "[+] We got start IP: %s and end IP: %s , which means a total of: %s IPs, now calculating all the IPs..." % (firstIP, lastIP, difference)
-        #define while loop counter
-        counter = 1
-        #loop while the counter is not equal to the difference
-        while counter != difference:
-            #calculate new last section based on the last section of the first ip plus the counter
-            lastSection_currentIP = int(lastSection_firstIP) + counter
-            #append the new last section to base
-            currentIP = baseIP + str(lastSection_currentIP)
-            #append the complete ip to the array
-            tempArray.append(currentIP)
-            #plus the counter
-            counter += 1
-        #append the last ip to the array
-        tempArray.append(lastIP)
+        range = IPRange(firstIP, lastIP)
+
+        for ip in range:
+            tempArray.append(str(ip))
+
         return tempArray
     else:
         return 0
@@ -245,6 +229,26 @@ def check_filemare():
             tempArray = [dataType, nr_of_files, size, lastUpdated, url, FTPHeaderResult]
             FilemareResults.append(tempArray)
 
+def check_shodan():
+    #Shodan normally costs credit to query for a host address, but the way they structure their site it makes it possible to do this for free
+    #For example /host/[valid IP] gives a HTTP 200 response /host/[invalid IP] gives a 404 so just by loading the page we can check if they have data
+    print "[+] Now checking shodan for available data"
+
+    #Lets loop through all the ips we got from ripe
+    for IP in RIPE_IPs:
+        #build the url
+        shodanUrl = "https://www.shodan.io/host/" + IP
+        #go to the url
+        r = requests.get(shodanUrl)
+        #and get the status code
+        print shodanUrl
+        print r.status_code
+        if r.status_code == 200:
+            print "[+] we got a match on shodan for ip: " + IP
+        #And sleep for as bit so they dont ban us
+        time.sleep(2)
+
+
 def close():
     print "[+] All done, exiting!..."
     driver.quit()
@@ -257,9 +261,9 @@ if __name__ == "__main__":
     #initiate db connection
     start_mongo()
     #temp var for the company name for testing
-    #companyName = "prepped"
+    companyName = "prepped"
     #Read companyName as argument
-    companyName = sys.argv[1]
+    #companyName = sys.argv[1]
     #Crawl ripe for the ip ranges
     print "[+] Initiating search for: %s" % companyName
     RIPE_IPs = get_ip_ranges(companyName)
@@ -286,6 +290,9 @@ if __name__ == "__main__":
         print "[+] Got %s results from filemare" % len(FilemareResults)
     else:
         print "[+] No banners found so skipping filemare"
+
+    #Check shodan
+    check_shodan()
     close()
             
             
