@@ -6,7 +6,7 @@ import thread
 from os import listdir
 from time import sleep
 import time
-from netaddr import *
+from netaddr import IPRange
 import requests
 
 maxThreads = 24 #Change this for the max threads to the DB
