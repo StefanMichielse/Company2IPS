@@ -4,8 +4,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from pymongo import MongoClient
 import thread
 from os import listdir
-from time import sleep
-import time
+from time import sleep, ctime
 from netaddr import IPRange
 import requests
 
@@ -138,9 +137,6 @@ def get_ip_ranges(companyName):
                 print "[+] In total got %s result pages from RIPE" % currentPage
                 pass
 
-
-
-
             #return the complete array
             return ipArray
 
@@ -165,7 +161,6 @@ def mongo_FTPsearch_thread(host):
         FTPHeaderResults.append(foundItem)
     resultsCounter += 1
     currentThreads -= 1
-
 
 def mongo_FTPlookup(RIPE_IPs):
     #Create global array for the DB results
@@ -248,13 +243,11 @@ def check_shodan():
         #And sleep for as bit so they dont ban us
         time.sleep(2)
 
-
 def close():
     print "[+] All done, exiting!..."
     driver.quit()
     #sys.exit(0)
     
-
 if __name__ == "__main__":
     #start the webdriver
     start_webdriver()
@@ -294,7 +287,3 @@ if __name__ == "__main__":
     #Check shodan
     check_shodan()
     close()
-            
-            
-            
-
