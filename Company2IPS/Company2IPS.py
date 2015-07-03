@@ -47,7 +47,7 @@ def start_mongo():
         print "[+] Initializing Database Connection..."
         global client
         global db
-        client = MongoClient('mongodb://192.168.178.30:27017/')#Enter your mongodb connect details
+        client = MongoClient('mongodb://192.168.178.90:27017/')#Enter your mongodb connect details
         db = client['Scans']#We assume the database is called scans and the collection is FTPHeaders
         print "[+] Succesfully created Database Connection"
     except:
@@ -152,7 +152,7 @@ def mongo_FTPsearch_thread(host):
     global resultsCounter
     global currentThreads
     #Define collection for the FTP banners
-    collection = db['FTPHeaders']#We assume the collection is FTPHeaders
+    collection = db['FTPBanners']#We assume the collection is FTPHeaders
     #Search in DB, find limit is quicker than find one so we only execute findone if there actually is a result
     foundItem = collection.find({"host": host}).limit(1).count()
     #If result is returned
@@ -169,7 +169,7 @@ def mongo_FTPlookup(RIPE_IPs):
     FTPHeaderResults = []
     #Get the amount of ips
     nr_of_ips = len(RIPE_IPs)
-    print "[+] Starting FTP Banner search for %s IPs at %s" % (nr_of_ips, time.ctime())
+    print "[+] Starting FTP Banner search for %s IPs at %s" % (nr_of_ips, ctime())
     #Start loop through the array op ips returned from ripe
     for RIPE_IP in RIPE_IPs:
         #print "[+] Currently running %s threads of a max %s" % (currentThreads, maxThreads)
@@ -241,7 +241,7 @@ def check_shodan():
         if r.status_code == 200:
             print "[+] we got a match on shodan for ip: " + IP
         #And sleep for as bit so they dont ban us
-        time.sleep(2)
+        sleep(2)
 
 def close():
     print "[+] All done, exiting!..."
@@ -254,7 +254,7 @@ if __name__ == "__main__":
     #initiate db connection
     start_mongo()
     #temp var for the company name for testing
-    companyName = "prepped"
+    companyName = "bcc nl"
     #Read companyName as argument
     #companyName = sys.argv[1]
     #Crawl ripe for the ip ranges
@@ -275,7 +275,7 @@ if __name__ == "__main__":
         pass
     #Check how many results we found
     nr_of_FTP_Banners = len(FTPHeaderResults)
-    print "[+] FTP Banner search completed, we found %s results at %s" % (nr_of_FTP_Banners, time.ctime())
+    print "[+] FTP Banner search completed, we found %s results at %s" % (nr_of_FTP_Banners, ctime())
     #Now lets check filemare whats on these bitches
     if nr_of_FTP_Banners > 0:
         print "[+] Now checking filemare for files"
